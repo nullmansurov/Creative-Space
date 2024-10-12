@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest  # Запуск на Windows Runner
+    runs-on: windows-latest 
 
     steps:
       - name: Set GitHub Token
@@ -27,13 +27,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build for Windows
-        run: npm run build -- --win
+      - name: Build for macOS
+        run: npm run build -- --mac
 
-      - name: Upload Windows Artifacts
+      - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: creative-space-build-windows
+          name: creative-space-build-macos
           path: dist/
 
   build-macos:
