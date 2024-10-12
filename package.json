@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "scyload.creativespace",
-    "productName": "Notes",
+    "productName": "Creative Space",
     "files": [
       "main.js",
       "package.json",
