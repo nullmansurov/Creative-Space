@@ -1,0 +1,76 @@
+name: Build and Release Creative Space
+
+on:
+  push:
+    branches:
+      - main  # Срабатывает при пуше в ветку main
+  release:
+    types: [created]  # Срабатывает при создании нового релиза
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]  # Сборка на всех платформах
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # Шаг 1: Проверка кода из репозитория
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      # Шаг 2: Настройка Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Укажите вашу версию Node.js
+
+      # Шаг 3: Установка зависимостей
+      - name: Install dependencies
+        run: npm install
+
+      # Шаг 4: Сборка и упаковка приложения
+      - name: Build and package the app
+        run: npm run build  # Сборка с использованием electron-builder
+
+      # Шаг 5: Загрузка файлов в релиз GitHub (только после сборки)
+      - name: Create GitHub Release
+        if: matrix.os == 'ubuntu-latest'  # Только один раз для одного ОС (Linux)
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Используем секретный токен для авторизации
+        with:
+          tag_name: v1.0.0  # Замените на актуальный тег
+          release_name: Release v1.0.0  # Название релиза
+          draft: false  # Если true, релиз будет черновиком
+          prerelease: false
+
+      # Шаг 6: Загрузка артефактов в релиз
+      - name: Upload Release Asset (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/your-file.exe  # Путь к .exe файлу
+          asset_name: your-file.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/your-file.dmg  # Путь к .dmg файлу
+          asset_name: your-file.dmg
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/your-file.AppImage  # Путь к .AppImage файлу
+          asset_name: your-file.AppImage
+          asset_content_type: application/octet-stream
