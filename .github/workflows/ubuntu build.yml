@@ -1,0 +1,34 @@
+name: Build Creative Space
+
+on:
+  push:
+    branches:
+      - main  # или другая ветка, на которую вы хотите настраивать сборку
+  pull_request:
+    branches:
+      - main  # или другая ветка для PR
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20.18.0'  # версия Node.js, которую вы указали
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: creative-space-build
+          path: dist/  # предполагая, что ваши артефакты находятся в папке dist
