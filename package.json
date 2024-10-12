@@ -40,7 +40,8 @@
         "AppImage",
         "deb"
       ],
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.png",
+       "maintainer": "Scyload <arstailev@gmail.com>"
     },
     "nsis": {
       "oneClick": false,
