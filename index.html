@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative space</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #refresh-button {
+            background-color: #333;
+            color: #f0f0f0;
+            border: none;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+
+        #refresh-button:hover {
+            background-color: #444;
+        }
+
+        .word {
+            display: inline-block;
+            margin: 5px;
+            padding: 12px 20px;
+            border: 1px solid #444;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .word:hover {
+            background-color: #555;
+        }
+
+        .saved-word {
+            background-color: #0066cc;
+            border-radius: 5px;
+            color: #ffffff;
+            padding: 8px;
+            margin-right: 3px;
+            user-select: none;
+        }
+
+        #word-container {
+            margin-bottom: 20px;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        #notes {
+            width: 90%;
+            max-width: 1000px;
+            height: 300px;
+            padding: 15px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #f0f0f0;
+            border-radius: 5px;
+            overflow-y: auto;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        #notes:focus {
+            outline: none;
+            border-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Creative environment</h1>
+    <button id="refresh-button">Refresh Dictionary</button>
+    <div id="word-container"></div>
+    <h3>Your Notes:</h3>
+    <div id="notes" contenteditable="true"></div>
+
+    <script>
+        const wordContainer = document.getElementById('word-container');
+        const notes = document.getElementById('notes');
+
+        async function fetchRandomWords() {
+            try {
+                const response = await fetch('words.txt');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                const text = await response.text();
+                const words = text.split('\n').filter(word => word.trim() !== ''); // Разделяем строки на слова и убираем пустые
+                const randomWords = getRandomWords(words, 15); // Получаем случайные 15 слов
+                displayWords(randomWords);
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+            }
+        }
+
+        // Функция для случайного выбора слов
+        function getRandomWords(words, count) {
+            const shuffled = words.sort(() => 0.5 - Math.random()); // Перемешиваем массив
+            return shuffled.slice(0, count); // Возвращаем первые 'count' элементов
+        }
+
+        function displayWords(words) {
+            wordContainer.innerHTML = '';
+            words.forEach(word => {
+                const wordElement = document.createElement('span');
+                wordElement.classList.add('word');
+                wordElement.textContent = word;
+                wordContainer.appendChild(wordElement);
+
+                wordElement.addEventListener('click', function() {
+                    addWordToNotes(word);
+                });
+            });
+        }
+
+        function addWordToNotes(word) {
+            const wordSpan = document.createElement('span');
+            wordSpan.classList.add('saved-word');
+            wordSpan.textContent = word;
+            wordSpan.setAttribute('contenteditable', 'false');
+
+            const space = document.createTextNode(' ');
+
+            notes.appendChild(wordSpan);
+            notes.appendChild(space);
+            placeCaretAtEnd(notes);
+
+            saveNotesToLocalStorage();
+        }
+
+        function placeCaretAtEnd(el) {
+            el.focus();
+            if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } else if (typeof document.body.createTextRange != "undefined") {
+                const textRange = document.body.createTextRange();
+                textRange.moveToElementText(el);
+                textRange.collapse(false);
+                textRange.select();
+            }
+        }
+
+        function saveNotesToLocalStorage() {
+            localStorage.setItem('notesContent', notes.innerHTML);
+        }
+
+        function loadNotesFromLocalStorage() {
+            const savedNotes = localStorage.getItem('notesContent');
+            if (savedNotes) {
+                notes.innerHTML = savedNotes;
+            }
+        }
+
+        document.getElementById('refresh-button').addEventListener('click', fetchRandomWords);
+
+        notes.addEventListener('input', saveNotesToLocalStorage);
+
+        fetchRandomWords();
+        loadNotesFromLocalStorage();
+    </script>
+</body>
+</html>
