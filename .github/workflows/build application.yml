@@ -36,7 +36,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: creative-space-build-windows
-          path: dist/
+          path: |
+            dist/*.exe
+
   build-macos:
     runs-on: macos-latest
 
@@ -62,7 +64,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: creative-space-build-macos
-          path: dist/
+          path: |
+            dist/*.dmg
 
   build-linux:
     runs-on: ubuntu-latest
@@ -89,4 +92,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: creative-space-build-linux
-          path: dist/
+          path: |
+            dist/*.AppImage
