@@ -3,7 +3,7 @@ name: Build Creative Space
 on:
   push:
     branches:
-      - main  # или другая ветка, на которую вы хотите настраивать сборку
+      - main 
   pull_request:
     branches:
       - main  # или другая ветка для PR
