@@ -94,3 +94,41 @@ jobs:
           name: creative-space-build-linux
           path: |
             dist/*.AppImage
+
+  upload-release-assets:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Windows
+        uses: actions/download-artifact@v3
+        with:
+          name: creative-space-build-windows
+          path: artifacts/windows
+
+      - name: Download macOS
+        uses: actions/download-artifact@v3
+        with:
+          name: creative-space-build-macos
+          path: artifacts/macos
+
+      - name: Download Linux
+        uses: actions/download-artifact@v3
+        with:
+          name: creative-space-build-linux
+          path: artifacts/linux
+
+      - name: Upload to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            artifacts/windows/*.exe
+            artifacts/macos/*.dmg
+            artifacts/linux/*.AppImage
+          token: ${{ secrets.maintoken }}
+          tag: ${{ github.ref_name }}
+          allowUpdates: true
+
